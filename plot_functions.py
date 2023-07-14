@@ -112,6 +112,7 @@ def plot_concept_top50(args, val_loader, model, whitened_layers, print_other = F
     concepts = args.concepts.split(',')
     with torch.no_grad():
         for k in range(begin, end):
+            print(args.concepts.split(',')[k])
             print(k)
             if k < len(concepts):
                 output_path = os.path.join(folder, concepts[k])

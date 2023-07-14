@@ -129,18 +129,18 @@ def main():
 
     train_loader = torch.utils.data.DataLoader(
         datasets.ImageFolder(traindir, transforms.Compose([
-            transforms.RandomSizedCrop(224),
+            transforms.RandomResizedCrop(224),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             normalize,
         ])),
         batch_size=args.batch_size, shuffle=True,
-        num_workers=args.workers, pin_memory=False)
+        num_workers=args.workers, pin_memory=False) if not args.evaluate else None
 
     concept_loaders = [
         torch.utils.data.DataLoader(
         datasets.ImageFolder(os.path.join(conceptdir_train, concept), transforms.Compose([
-            transforms.RandomSizedCrop(224),
+            transforms.RandomResizedCrop(224),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             normalize,
@@ -148,7 +148,7 @@ def main():
         batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=False)
         for concept in args.concepts.split(',')
-    ]
+    ] if not args.evaluate else None
 
     val_loader = torch.utils.data.DataLoader(
         datasets.ImageFolder(valdir, transforms.Compose([
@@ -158,21 +158,21 @@ def main():
             normalize,
         ])),
         batch_size=args.batch_size, shuffle=True,
-        num_workers=args.workers, pin_memory=False)
+        num_workers=args.workers, pin_memory=False) if not args.evaluate else None
 
     test_loader = torch.utils.data.DataLoader(
         datasets.ImageFolder(testdir, transforms.Compose([
-            transforms.Scale(256),
+            transforms.Resize(256),
             transforms.CenterCrop(224),
             transforms.ToTensor(),
             normalize,
         ])),
         batch_size=args.batch_size, shuffle=False,
-        num_workers=args.workers, pin_memory=False)
+        num_workers=args.workers, pin_memory=False) if not args.evaluate else None
 
     test_loader_with_path = torch.utils.data.DataLoader(
-        ImageFolderWithPaths(testdir, transforms.Compose([
-            transforms.Scale(256),
+        ImageFolderWithPaths(valdir, transforms.Compose([
+            transforms.Resize(256),
             transforms.CenterCrop(224),
             transforms.ToTensor(),
             normalize,
@@ -240,7 +240,7 @@ def train(train_loader, concept_loaders, model, criterion, optimizer, epoch):
         # measure data loading time
         data_time.update(time.time() - end)
         
-        target = target.cuda(async=True)
+        target = target.cuda(non_blocking=True)
         input_var = torch.autograd.Variable(input)
         target_var = torch.autograd.Variable(target)
         
@@ -285,7 +285,7 @@ def validate(val_loader, model, criterion, epoch):
     end = time.time()
     with torch.no_grad():
         for i, (input, target) in enumerate(val_loader):
-            target = target.cuda(async=True)
+            target = target.cuda(non_blocking=True)
             input_var = torch.autograd.Variable(input)
             target_var = torch.autograd.Variable(target)
             
@@ -396,7 +396,7 @@ def train_baseline(train_loader, concept_loaders, model, criterion, optimizer, e
         # measure data loading time
         data_time.update(time.time() - end)
         
-        target = target.cuda(async=True)
+        target = target.cuda(non_blocking=True)
         input_var = torch.autograd.Variable(input)
         target_var = torch.autograd.Variable(target)
         
@@ -435,7 +435,7 @@ def plot_figures(args, model, test_loader_with_path, train_loader, concept_loade
     concept_name = args.concepts.split(',')
 
     if not os.path.exists('./plot/'+'_'.join(concept_name)):
-        os.mkdir('./plot/'+'_'.join(concept_name))
+        os.makedirs('./plot/'+'_'.join(concept_name), exist_ok=True)
     
     if args.evaluate == 'plot_top50':
         print("Plot top50 activated images")

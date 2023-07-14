@@ -131,7 +131,7 @@ An example dataset folder structure looks like the above, where in each bottom l
 
 There generally two types of dataset, main objective dataset and auxiliary concept dataset.
 
-Main dataset: We mainly use Places365 as the main dataset, and it can be downloaded from [Here](http://places2.csail.mit.edu/download.html). It should be divided into train, test, validation sets and stored in corresponding folders shown by the example dataset folder structure above.
+Main dataset: We mainly use Places365 as the main dataset, and it can be downloaded from [Here](http://places2.csail.mit.edu/download.html) ([alt](https://www.kaggle.com/datasets/nickj26/places2-mit-dataset?select=val_256)). It should be divided into train, test, validation sets and stored in corresponding folders shown by the example dataset folder structure above.
 
 Concept dataset: We mainly use objects in MS COCO as our auxiliary concept dataset, and it can be downloaded from [Here](https://cocodataset.org/#download). Each annotation, e.g., “person” in MS COCO, was used as one concept, and we selected all the images with this annotation (images having “person” in it), cropped them using bounding boxes and used the cropped images as the data representing the concept. The preprocessing code of the COCO dataset is provided in *cropping_images_COCO.py*. After downloading the 2017 COCO dataset, one can extract the concept images by running
 ```
@@ -178,6 +178,6 @@ Note that these corresponds to directories in the */dataset_256/concept_train* a
 #### Test: 
 Similarly, example testing invocation scripts are inside the */scripts* folder, and testing is done by invoking:
 ```
-python3 train_places.py --ngpu 1 --workers 2 --arch resnet_cw --depth 18 --epochs 200 --batch-size 64 --lr 0.1 --whitened_layers 5 --concepts airplane,bed,person --prefix RESNET18_PLACES365_CPT_WHITEN_TRANSFER --resume ./checkpoints/RESNET18_PLACES365_CPT_WHITEN_TRANSFER_model_best.pth.tar /data_256 --evaluate plot_top50
+python train_places.py --ngpu 1 --workers 2 --arch resnet_cw --depth 18 --epochs 200 --batch-size 64 --lr 0.1 --whitened_layers 5 --concepts airplane,bed,person --prefix RESNET18_PLACES365_CPT_WHITEN_TRANSFER --resume ./checkpoints/RESNET18_PLACES365_CPT_WHITEN_TRANSFER_model_best.pth.tar ./data_256 --evaluate plot_top50
 ```
 which plot the 50 top activated images along the concept axes.

@@ -1,4 +1,5 @@
 *.pyc
 plot/*
-checkpoints/*
+# checkpoints/*
 *.out
+data_256/val*
